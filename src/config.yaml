@@ -1,0 +1,12 @@
+# Social media web service
+SocialServiceURL: "http://localhost:8080"
+SocialTwitterEnabled: false
+SocialTelegramEnabled: false
+SocialDiscordEnabled: true
+SocialSlackEnabled: false
+SocialServiceKey: "keytest"
+SocialServiceSecret: "secret1234"
+
+
+# Vega parameters
+GrpcNodeUrl: "n06.testnet.vega.xyz:3002"
