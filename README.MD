@@ -1,4 +1,4 @@
-# VEGA BOT
+# 🤖 VEGA BOT 📣
 The bot is publishing real-time Vega network notification to social media platforms.
 
 ## Events

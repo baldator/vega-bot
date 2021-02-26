@@ -33,7 +33,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	conn, err := grpc.Dial(conf.GrpcNodeURL, grpc.WithInsecure(), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(100000000)))
+	conn, err := grpc.Dial(conf.GrpcNodeURL, grpc.WithInsecure(), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(200000000)))
 	if err != nil {
 		log.Fatal(err)
 	}

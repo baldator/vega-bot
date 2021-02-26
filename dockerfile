@@ -19,6 +19,5 @@ WORKDIR $APP_HOME
 COPY src/conf/ conf/
 COPY src/views/ views/
 COPY --chown=0:0 --from=builder $APP_HOME/vegabot $APP_HOME
-EXPOSE 8010
 USER $APP_USER
 CMD ["./vegabot"]
