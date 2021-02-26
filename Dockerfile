@@ -1,4 +1,4 @@
-FROM golang:alpine3.13 as builder
+FROM golang:buster as builder
 ENV APP_USER app
 ENV APP_HOME /go/src/vegabot
 RUN groupadd $APP_USER && useradd -m -g $APP_USER -l $APP_USER
@@ -10,14 +10,13 @@ RUN go mod download
 RUN go mod verify
 RUN go build -o vegabot
 
-FROM golang:alpine3.13
+FROM golang:buster
 ENV APP_USER app
 ENV APP_HOME /go/src/vegabot
 RUN groupadd $APP_USER && useradd -m -g $APP_USER -l $APP_USER
 RUN mkdir -p $APP_HOME
 WORKDIR $APP_HOME
-COPY src/conf/ conf/
-COPY src/views/ views/
+COPY src/confing.yaml confing.yaml
 COPY --chown=0:0 --from=builder $APP_HOME/vegabot $APP_HOME
 USER $APP_USER
 CMD ["./vegabot"]
