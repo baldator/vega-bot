@@ -1,6 +1,12 @@
 # 🤖 VEGA BOT 📣
 The bot is publishing real-time Vega network notification to social media platforms.
 
+## Docker container
+You can run the solution in a Docker container:
+```
+docker run baldator/vega-bot -v src/config.yaml:config.yaml
+```
+
 ## Events
 The following events triggers a message:
 

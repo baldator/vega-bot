@@ -95,7 +95,7 @@ func main() {
 						log.Fatal(err)
 					}
 					socialPost.SendMessage(message)
-				case proto.BusEventType_BUS_EVENT_TYPE_TRADE:
+				case proto.BusEventType_BUS_EVENT_TYPE_TRADE: // Rekt alert
 					trade := event.GetTrade()
 					if trade.Type == proto.Trade_TYPE_NETWORK_CLOSE_OUT_BAD {
 						fmt.Println("rekt alert ", event)
@@ -103,7 +103,16 @@ func main() {
 						if err != nil {
 							log.Fatal(err)
 						}
+						fmt.Println("rekt alert ", message)
 						socialPost.SendMessage(message)
+					}
+				case proto.BusEventType_BUS_EVENT_TYPE_ORDER: // Whale alert
+					order := event.GetOrder()
+					if order.Status == proto.Order_STATUS_ACTIVE {
+						value := order.Size * order.Price
+						marketVal, _ := getMarketValue(dataClient, order.MarketId, order.Side)
+						fmt.Println("Order total: ", value)
+						fmt.Println("NMarket total: ", marketVal)
 					}
 				}
 			}
@@ -135,4 +144,28 @@ func readEthereumConfig(dataClient api.TradingDataServiceClient) (*proto.Network
 	}
 
 	return currentEthereumConfig, nil
+}
+
+func getMarketValue(dataClient api.TradingDataServiceClient, marketID string, side proto.Side) (uint64, error) {
+	requestMarketDepth := api.MarketDepthRequest{MarketId: marketID}
+	marketDepthObject, err := dataClient.MarketDepth(context.Background(), &requestMarketDepth)
+	if err != nil {
+		return 0, err
+	}
+
+	var marketValue uint64
+	marketValue = 0
+	if side == proto.Side_SIDE_BUY {
+		for _, val := range marketDepthObject.Buy {
+			marketValue += val.Volume * val.Price
+		}
+	}
+
+	if side == proto.Side_SIDE_SELL {
+		for _, val := range marketDepthObject.Sell {
+			marketValue += val.Volume * val.Price
+		}
+	}
+
+	return marketValue, nil
 }
