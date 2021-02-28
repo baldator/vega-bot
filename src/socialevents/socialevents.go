@@ -2,7 +2,6 @@ package socialevents
 
 import (
 	"encoding/json"
-	"log"
 	"strconv"
 
 	"github.com/vegaprotocol/api-clients/go/generated/code.vegaprotocol.io/vega/proto"
@@ -28,9 +27,7 @@ func MarketProposalNotification(dataClient api.TradingDataServiceClient, marketI
 	Market := MarketObject.GetMarket()
 	stateString := getMarketProposalState(state)
 
-	log.Println("The market proposal ", Market.TradableInstrument.Instrument.Name, " has ", stateString)
-
-	return "The market proposal " + Market.TradableInstrument.Instrument.Name + " " + stateString, nil
+	return "⚖️ Market proposal " + Market.TradableInstrument.Instrument.Name + " " + stateString, nil
 }
 
 func getMarketProposalState(state proto.Proposal_State) string {
@@ -69,10 +66,7 @@ func AuctionNotification(dataClient api.TradingDataServiceClient, auction *proto
 	}
 
 	auctionType := getAuctionType(auction.Trigger)
-
-	log.Println(auctionType, " on ", market.TradableInstrument.Instrument.Name, " has ", status)
-
-	message := auctionType + " on " + market.TradableInstrument.Instrument.Name + " has " + status
+	message := "🔨 " + auctionType + " on " + market.TradableInstrument.Instrument.Name + " has been " + status
 
 	return message, nil
 }
@@ -99,20 +93,21 @@ func getAuctionType(trigger proto.AuctionTrigger) string {
 func NetworkParametesNotification(dataClient api.TradingDataServiceClient, network *proto.NetworkParameter, current *proto.NetworkParameter) string {
 	var currentConfig EthereumConfig
 	var newConfig EthereumConfig
+	message := ""
 
 	json.Unmarshal([]byte(current.Value), &currentConfig)
 	json.Unmarshal([]byte(network.Value), &newConfig)
 
 	if currentConfig.NetworkID != newConfig.NetworkID {
-		log.Println("Vega network has been reset. New network id is: ", newConfig.NetworkID)
+		message = "🔄 Vega network restarted. New network id is: " + newConfig.NetworkID
 	}
 
-	return "Vega network has been reset. New network id is: " + newConfig.NetworkID
+	return message
 }
 
 // MarketCreationNotification returns market creation notification message
 func MarketCreationNotification(dataClient api.TradingDataServiceClient, market *proto.Market) (string, error) {
-	return "A new market has been created for " + market.TradableInstrument.Instrument.Name, nil
+	return "⚖️ A new market created for " + market.TradableInstrument.Instrument.Name, nil
 }
 
 // LossSocializationNotification returns loss socialization notification message
@@ -121,7 +116,7 @@ func LossSocializationNotification(dataClient api.TradingDataServiceClient, loss
 	if err != nil {
 		return "", err
 	}
-	message := "Loss socialization on " + market.TradableInstrument.Instrument.Name + ". Amount distributed: " + strconv.FormatInt(lossSocialization.Amount, 10)
+	message := "💰 Loss socialization on " + market.TradableInstrument.Instrument.Name + ". Amount distributed: " + strconv.FormatInt(lossSocialization.Amount, 10)
 	return message, nil
 }
 
@@ -131,7 +126,7 @@ func RektNotification(dataClient api.TradingDataServiceClient, trade *proto.Trad
 	if err != nil {
 		return "", err
 	}
-	message := "A position on " + market.TradableInstrument.Instrument.Name + "has been liquidated. Position size: " + strconv.FormatUint(trade.Size, 10) + ", position price: " + strconv.FormatUint(trade.Price, 10)
+	message := " 💸 A position on " + market.TradableInstrument.Instrument.Name + "has been liquidated. Position size: " + strconv.FormatUint(trade.Size, 10) + ", position price: " + strconv.FormatUint(trade.Price, 10)
 	return message, nil
 }
 
@@ -143,4 +138,15 @@ func getMarketByID(dataClient api.TradingDataServiceClient, marketID string) (*p
 	}
 
 	return MarketObject.GetMarket(), nil
+}
+
+// WhaleNotification return whale notification message
+func WhaleNotification(dataClient api.TradingDataServiceClient, order *proto.Order) (string, error) {
+	market, err := getMarketByID(dataClient, order.MarketId)
+	if err != nil {
+		return "", err
+	}
+	message := "🐋 Whale alert on " + market.TradableInstrument.Instrument.Name + ". order value: " + strconv.FormatUint(order.Size*order.Price, 10)
+
+	return message, nil
 }
