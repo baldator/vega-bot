@@ -196,6 +196,4 @@ func initializeSentry(conf ConfigVars) {
 		}
 	}
 	defer sentry.Flush(2 * time.Second)
-
-	sentry.CaptureMessage("Start server!")
 }

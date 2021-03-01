@@ -2,6 +2,7 @@ package socialevents
 
 import (
 	"encoding/json"
+	"math"
 	"strconv"
 
 	"github.com/vegaprotocol/api-clients/go/generated/code.vegaprotocol.io/vega/proto"
@@ -116,7 +117,11 @@ func LossSocializationNotification(dataClient api.TradingDataServiceClient, loss
 	if err != nil {
 		return "", err
 	}
-	message := "💰 Loss socialization on " + market.TradableInstrument.Instrument.Name + ". Amount distributed: " + strconv.FormatInt(lossSocialization.Amount, 10)
+
+	decimal := float64(market.GetDecimalPlaces())
+	value := float64(lossSocialization.Amount) / (math.Pow(10, decimal))
+
+	message := "💰 Loss socialization on " + market.TradableInstrument.Instrument.Name + ". Amount distributed: " + strconv.FormatFloat(value, 'f', -1, 64)
 	return message, nil
 }
 
@@ -126,7 +131,11 @@ func RektNotification(dataClient api.TradingDataServiceClient, trade *proto.Trad
 	if err != nil {
 		return "", err
 	}
-	message := " 💸 A position on " + market.TradableInstrument.Instrument.Name + "has been liquidated. Position size: " + strconv.FormatUint(trade.Size, 10) + ", position price: " + strconv.FormatUint(trade.Price, 10)
+
+	decimal := float64(market.GetDecimalPlaces())
+	value := float64(trade.Price) / (math.Pow(10, decimal))
+
+	message := " 💸 A position on " + market.TradableInstrument.Instrument.Name + "has been liquidated. Position size: " + strconv.FormatUint(trade.Size, 10) + ", position price: " + strconv.FormatFloat(value, 'f', -1, 64)
 	return message, nil
 }
 
@@ -146,7 +155,10 @@ func WhaleNotification(dataClient api.TradingDataServiceClient, order *proto.Ord
 	if err != nil {
 		return "", err
 	}
-	message := "🐋 Whale alert on " + market.TradableInstrument.Instrument.Name + ". order value: " + strconv.FormatUint(order.Size*order.Price, 10)
+	var value float64
+	decimal := float64(market.GetDecimalPlaces())
+	value = (float64(order.Size) * float64(order.Price)) / (math.Pow(10, decimal))
+	message := "🐋 Whale alert on " + market.TradableInstrument.Instrument.Name + ". order value: " + strconv.FormatFloat(value, 'f', -1, 64)
 
 	return message, nil
 }
