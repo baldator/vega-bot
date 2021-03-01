@@ -12,6 +12,7 @@ type ConfigVars struct {
 	SocialServiceSecret   string  `yaml:"SocialServiceSecret" env:"SocialServiceSecret" env-default:""`
 	GrpcNodeURL           string  `yaml:"GrpcNodeUrl" env:"GRPCNODEURL" env-default:"n06.testnet.vega.xyz:3002"`
 	WhaleThreshold        float64 `yaml:"WhaleThreshold" env:"WHALETHRESHOLD" env-default:"0.05"`
+	SentryDsn             string  `yaml:"SentryDsn" env:"SENTRY-DSN" env-default:""`
 }
 
 // ReadConfig import config struct from yaml file

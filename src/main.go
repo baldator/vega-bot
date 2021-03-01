@@ -7,6 +7,7 @@ import (
 	"github.com/baldator/vega-alerts/social"
 	"github.com/baldator/vega-alerts/socialevents"
 
+	"github.com/getsentry/sentry-go"
 	"github.com/vegaprotocol/api-clients/go/generated/code.vegaprotocol.io/vega/proto"
 	"github.com/vegaprotocol/api-clients/go/generated/code.vegaprotocol.io/vega/proto/api"
 	"golang.org/x/net/context"
@@ -18,6 +19,15 @@ func main() {
 	conf, err := ReadConfig("config.yaml")
 	if err != nil {
 		log.Fatal("Failed to read config: ", err)
+	}
+
+	if conf.SentryDsn != "" {
+		err := sentry.Init(sentry.ClientOptions{
+			Dsn: conf.SentryDsn,
+		})
+		if err != nil {
+			log.Fatalf("sentry.Init: %s", err)
+		}
 	}
 
 	log.Println("Starting server")
