@@ -3,6 +3,7 @@ package social
 import (
 	"bytes"
 	"errors"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"strconv"
@@ -74,7 +75,6 @@ func (social *Social) SendMessage(message string) error {
 
 func (social *Social) sendMessageSocial(message string, socialMedia string) error {
 
-	//TODO switch on social flags
 	url := social.ServiceURL + "/send/" + socialMedia
 	jsonStr := []byte("{\"message\":\"" + message + "\"}")
 
@@ -96,12 +96,12 @@ func (social *Social) sendMessageSocial(message string, socialMedia string) erro
 		return errors.New("Invalid return code: " + strconv.Itoa(resp.StatusCode))
 	}
 
-	/*
-		body, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Println(string(body)) */
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println("Message sent: ", message)
+	log.Println(string(body))
 
 	return nil
 }
