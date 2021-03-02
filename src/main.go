@@ -119,7 +119,7 @@ func main() {
 						order := event.GetOrder()
 						if order.Status == proto.Order_STATUS_ACTIVE {
 							value := order.Size * order.Price
-							marketVal, marketFlag, _ := getMarketValue(dataClient, order.MarketId, order.Side, conf)
+							marketVal, marketFlag, _ := getMarketValue(dataClient, order.MarketId, order.Side, conf.WhaleOrdersThreshold)
 							if float64(value) > (float64(marketVal)*conf.WhaleThreshold) && marketFlag {
 								message, err := socialevents.WhaleNotification(dataClient, order)
 								if err != nil {
@@ -165,7 +165,7 @@ func readEthereumConfig(dataClient api.TradingDataServiceClient) (*proto.Network
 	return currentEthereumConfig, nil
 }
 
-func getMarketValue(dataClient api.TradingDataServiceClient, marketID string, side proto.Side, conf ConfigVars) (uint64, bool, error) {
+func getMarketValue(dataClient api.TradingDataServiceClient, marketID string, side proto.Side, whaleOrdersThreshold int) (uint64, bool, error) {
 	requestMarketDepth := api.MarketDepthRequest{MarketId: marketID}
 	marketDepthObject, err := dataClient.MarketDepth(context.Background(), &requestMarketDepth)
 	if err != nil {
@@ -177,7 +177,7 @@ func getMarketValue(dataClient api.TradingDataServiceClient, marketID string, si
 	marketOrdersBuy := len(marketDepthObject.Buy)
 	marketOrderSell := len(marketDepthObject.Sell)
 	marketOrdersFlag := false
-	if marketOrdersBuy > conf.WhaleOrdersThreshold && marketOrderSell > conf.WhaleOrdersThreshold {
+	if marketOrdersBuy > whaleOrdersThreshold && marketOrderSell > whaleOrdersThreshold {
 		marketOrdersFlag = true
 	}
 

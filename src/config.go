@@ -12,7 +12,7 @@ type ConfigVars struct {
 	SocialServiceSecret   string  `yaml:"SocialServiceSecret" env:"SocialServiceSecret" env-default:""`
 	GrpcNodeURL           string  `yaml:"GrpcNodeUrl" env:"GRPCNODEURL" env-default:"n06.testnet.vega.xyz:3002"`
 	WhaleThreshold        float64 `yaml:"WhaleThreshold" env:"WHALETHRESHOLD" env-default:"0.05"`
-	WhaleOrdersThreshold  uint32  `yaml:"WhaleOrdersThreshold" env:"WHALEORDERSTHRESHOLD" env-default:"100"`
+	WhaleOrdersThreshold  int     `yaml:"WhaleOrdersThreshold" env:"WHALEORDERSTHRESHOLD" env-default:"100"`
 	SentryDsn             string  `yaml:"SentryDsn" env:"SENTRY-DSN" env-default:""`
 }
 
