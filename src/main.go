@@ -119,8 +119,8 @@ func main() {
 						order := event.GetOrder()
 						if order.Status == proto.Order_STATUS_ACTIVE {
 							value := order.Size * order.Price
-							marketVal, _ := getMarketValue(dataClient, order.MarketId, order.Side)
-							if float64(value) > (float64(marketVal) * conf.WhaleThreshold) {
+							marketVal, marketFlag, _ := getMarketValue(dataClient, order.MarketId, order.Side)
+							if float64(value) > (float64(marketVal)*conf.WhaleThreshold) && marketFlag {
 								message, err := socialevents.WhaleNotification(dataClient, order)
 								if err != nil {
 									log.Fatal(err)
@@ -162,32 +162,35 @@ func readEthereumConfig(dataClient api.TradingDataServiceClient) (*proto.Network
 	return currentEthereumConfig, nil
 }
 
-func getMarketValue(dataClient api.TradingDataServiceClient, marketID string, side proto.Side) (uint64, error) {
+func getMarketValue(dataClient api.TradingDataServiceClient, marketID string, side proto.Side) (uint64, bool, error) {
 	requestMarketDepth := api.MarketDepthRequest{MarketId: marketID}
 	marketDepthObject, err := dataClient.MarketDepth(context.Background(), &requestMarketDepth)
 	if err != nil {
-		return 0, err
+		return 0, false, err
 	}
 
 	var marketValue uint64
 	marketValue = 0
-	marketOrders := 0
+	marketOrdersBuy := len(marketDepthObject.Buy)
+	marketOrderSell := len(marketDepthObject.Sell)
+	marketOrdersFlag := false
+	if marketOrdersBuy > 100 && marketOrderSell > 100 {
+		marketOrdersFlag = true
+	}
+
 	if side == proto.Side_SIDE_BUY {
 		for _, val := range marketDepthObject.Buy {
 			marketValue = marketValue + val.Volume*val.Price
 		}
-		marketOrders = len(marketDepthObject.Buy)
 	}
 
 	if side == proto.Side_SIDE_SELL {
 		for _, val := range marketDepthObject.Sell {
 			marketValue = marketValue + val.Volume*val.Price
 		}
-		marketOrders = len(marketDepthObject.Buy)
 	}
 
-	log.Println("Orders: ", marketOrders, ", Market Val: ", marketValue)
-	return marketValue, nil
+	return marketValue, marketOrdersFlag, nil
 }
 
 func initializeSentry(conf ConfigVars) {
