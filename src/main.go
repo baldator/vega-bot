@@ -171,7 +171,7 @@ func getMarketValue(dataClient api.TradingDataServiceClient, marketID string, si
 
 	var marketValue uint64
 	marketValue = 0
-	marketOrders = 0
+	marketOrders := 0
 	if side == proto.Side_SIDE_BUY {
 		for _, val := range marketDepthObject.Buy {
 			marketValue = marketValue + val.Volume*val.Price
@@ -186,7 +186,7 @@ func getMarketValue(dataClient api.TradingDataServiceClient, marketID string, si
 		marketOrders = len(marketDepthObject.Buy)
 	}
 
-	log.Println("Orders: "+marketOrders+", Market Val: ", marketValue)
+	log.Println("Orders: ", marketOrders, ", Market Val: ", marketValue)
 	return marketValue, nil
 }
 
