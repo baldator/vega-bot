@@ -97,6 +97,7 @@ func main() {
 						}
 						socialPost.SendMessage(message)
 					case proto.BusEventType_BUS_EVENT_TYPE_PROPOSAL: //New Market Proposal created, updated, enacted
+						log.Println("BUS_EVENT_TYPE_PROPOSAL: ", event)
 						proposal := event.GetProposal()
 						message, err := socialevents.MarketProposalNotification(dataClient, proposal.Id, proposal.State)
 						if err != nil {
@@ -170,18 +171,22 @@ func getMarketValue(dataClient api.TradingDataServiceClient, marketID string, si
 
 	var marketValue uint64
 	marketValue = 0
+	marketOrders = 0
 	if side == proto.Side_SIDE_BUY {
 		for _, val := range marketDepthObject.Buy {
-			marketValue += val.Volume * val.Price
+			marketValue = marketValue + val.Volume*val.Price
 		}
+		marketOrders = len(marketDepthObject.Buy)
 	}
 
 	if side == proto.Side_SIDE_SELL {
 		for _, val := range marketDepthObject.Sell {
-			marketValue += val.Volume * val.Price
+			marketValue = marketValue + val.Volume*val.Price
 		}
+		marketOrders = len(marketDepthObject.Buy)
 	}
 
+	log.Println("Orders: "+marketOrders+", Market Val: ", marketValue)
 	return marketValue, nil
 }
 
