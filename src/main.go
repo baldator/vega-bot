@@ -137,7 +137,7 @@ func main() {
 			}
 		}()
 
-		observerEvent := api.ObserveEventBusRequest{Type: []proto.BusEventType{eventType}}
+		observerEvent := api.ObserveEventBusRequest{Type: []proto.BusEventType{eventType}, BatchSize: 5000}
 		events.Send(&observerEvent)
 		events.CloseSend()
 
