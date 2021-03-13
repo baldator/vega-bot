@@ -3,7 +3,6 @@ package main
 import (
 	"io"
 	"log"
-	"time"
 
 	"github.com/baldator/vega-alerts/social"
 	"github.com/baldator/vega-alerts/socialevents"
@@ -22,24 +21,30 @@ func main() {
 		log.Fatal("Failed to read config: ", err)
 	}
 
-	initializeSentry(conf)
+	if conf.SentryEnabled {
+		initializeSentry(conf.SentryDsn)
+	}
+
+	if conf.PrometheusEnabled {
+		initializePrometheus(conf.PrometheusPort)
+	}
 
 	func() {
-		defer sentry.Recover()
+		if conf.SentryEnabled {
+			defer sentry.Recover()
+		}
 
 		log.Println("Starting server")
 		log.Println("Initialize social webservice connection")
 
 		socialPost, err := social.NewSocialChannel(conf.SocialServiceURL, conf.SocialServiceKey, conf.SocialServiceSecret, conf.SocialTwitterEnabled, conf.SocialDiscordEnabled, conf.SocialSlackEnabled, conf.SocialTelegramEnabled)
 		if err != nil {
-			sentry.CaptureException(err)
-			sentry.Flush(time.Second * 5)
-			log.Fatal(err)
+			logError(err, conf.SentryEnabled)
 		}
 
-		conn, err := grpc.Dial(conf.GrpcNodeURL, grpc.WithInsecure(), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(256<<20)))
+		conn, err := grpc.Dial(conf.GrpcNodeURL, grpc.WithInsecure(), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(256<<22)))
 		if err != nil {
-			logError(err)
+			logError(err, conf.SentryEnabled)
 		}
 		defer conn.Close()
 
@@ -56,7 +61,7 @@ func main() {
 
 		currentEthereumConfig, err := readEthereumConfig(dataClient)
 		if err != nil {
-			logError(err)
+			logError(err, conf.SentryEnabled)
 		}
 
 		done := make(chan bool)
@@ -70,9 +75,7 @@ func main() {
 				}
 
 				if err != nil {
-					sentry.CaptureException(err)
-					sentry.Flush(time.Second * 5)
-					log.Println(err)
+					logError(err, conf.SentryEnabled)
 				}
 
 				for _, event := range resp.Events {
@@ -90,7 +93,7 @@ func main() {
 						lossSocialization := event.GetLossSocialization()
 						message, err := socialevents.LossSocializationNotification(dataClient, lossSocialization)
 						if err != nil {
-							logError(err)
+							logError(err, conf.SentryEnabled)
 						}
 						log.Println(message)
 						socialPost.SendMessage(message)
@@ -99,7 +102,7 @@ func main() {
 						message, err := socialevents.AuctionNotification(dataClient, auction)
 						log.Println(message)
 						if err != nil {
-							logError(err)
+							logError(err, conf.SentryEnabled)
 						}
 						socialPost.SendMessage(message)
 					case proto.BusEventType_BUS_EVENT_TYPE_PROPOSAL: //New Market Proposal created, updated, enacted
@@ -107,7 +110,7 @@ func main() {
 						proposal := event.GetProposal()
 						message, err := socialevents.MarketProposalNotification(dataClient, proposal.Id, proposal.State)
 						if err != nil {
-							logError(err)
+							logError(err, conf.SentryEnabled)
 						}
 						log.Println(message)
 						socialPost.SendMessage(message)
@@ -116,7 +119,7 @@ func main() {
 						if trade.Type == proto.Trade_TYPE_NETWORK_CLOSE_OUT_BAD {
 							message, err := socialevents.RektNotification(dataClient, trade)
 							if err != nil {
-								logError(err)
+								logError(err, conf.SentryEnabled)
 							}
 							log.Println(message)
 							socialPost.SendMessage(message)
@@ -129,7 +132,7 @@ func main() {
 							if float64(value) > (float64(marketVal)*conf.WhaleThreshold) && marketFlag {
 								message, err := socialevents.WhaleNotification(dataClient, order)
 								if err != nil {
-									logError(err)
+									logError(err, conf.SentryEnabled)
 								}
 								log.Println(message)
 								socialPost.SendMessage(message)
@@ -144,7 +147,7 @@ func main() {
 		}()
 
 		// When the batchSize is too small -> "rpc error: code = Unknown desc = EOF"
-		observerEvent := api.ObserveEventBusRequest{Type: eventType, BatchSize: 10000}
+		observerEvent := api.ObserveEventBusRequest{Type: eventType}
 		events.Send(&observerEvent)
 		events.CloseSend()
 
@@ -152,72 +155,4 @@ func main() {
 
 		log.Println("finished")
 	}()
-}
-
-func readEthereumConfig(dataClient api.TradingDataServiceClient) (*proto.NetworkParameter, error) {
-	log.Println("Initialize network parameters")
-	request := api.NetworkParametersRequest{}
-	network, err := dataClient.NetworkParameters(context.Background(), &request)
-	if err != nil {
-		return nil, err
-	}
-
-	var currentEthereumConfig *proto.NetworkParameter
-	for _, param := range network.GetNetworkParameters() {
-		if param.Key == "blockchains.ethereumConfig" {
-			currentEthereumConfig = param
-		}
-	}
-
-	return currentEthereumConfig, nil
-}
-
-func getMarketValue(dataClient api.TradingDataServiceClient, marketID string, side proto.Side, whaleOrdersThreshold int) (uint64, bool, error) {
-	requestMarketDepth := api.MarketDepthRequest{MarketId: marketID}
-	marketDepthObject, err := dataClient.MarketDepth(context.Background(), &requestMarketDepth)
-	if err != nil {
-		return 0, false, err
-	}
-
-	var marketValue uint64
-	marketValue = 0
-	marketOrdersBuy := len(marketDepthObject.Buy)
-	marketOrderSell := len(marketDepthObject.Sell)
-	marketOrdersFlag := false
-	if marketOrdersBuy > whaleOrdersThreshold && marketOrderSell > whaleOrdersThreshold {
-		marketOrdersFlag = true
-	}
-
-	if side == proto.Side_SIDE_BUY {
-		for _, val := range marketDepthObject.Buy {
-			marketValue = marketValue + val.Volume*val.Price
-		}
-	}
-
-	if side == proto.Side_SIDE_SELL {
-		for _, val := range marketDepthObject.Sell {
-			marketValue = marketValue + val.Volume*val.Price
-		}
-	}
-
-	return marketValue, marketOrdersFlag, nil
-}
-
-func initializeSentry(conf ConfigVars) {
-	log.Println("Initialize sentry")
-	if conf.SentryDsn != "" {
-		err := sentry.Init(sentry.ClientOptions{
-			Dsn: conf.SentryDsn,
-		})
-		if err != nil {
-			log.Fatalf("sentry.Init: %s", err)
-		}
-	}
-	defer sentry.Flush(2 * time.Second)
-}
-
-func logError(err error) {
-	sentry.CaptureException(err)
-	sentry.Flush(time.Second * 5)
-	log.Fatal(err)
 }

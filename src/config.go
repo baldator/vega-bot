@@ -13,7 +13,10 @@ type ConfigVars struct {
 	GrpcNodeURL           string  `yaml:"GrpcNodeUrl" env:"GRPCNODEURL" env-default:"n06.testnet.vega.xyz:3002"`
 	WhaleThreshold        float64 `yaml:"WhaleThreshold" env:"WHALETHRESHOLD" env-default:"0.05"`
 	WhaleOrdersThreshold  int     `yaml:"WhaleOrdersThreshold" env:"WHALEORDERSTHRESHOLD" env-default:"100"`
+	SentryEnabled         bool    `yaml:"SentryEnabled" env:"SENTRY-ENABLED" env-default:"false"`
 	SentryDsn             string  `yaml:"SentryDsn" env:"SENTRY-DSN" env-default:""`
+	PrometheusEnabled     bool    `yaml:"PrometheusEnabled" env:"PROMETHEUS-ENABLED" env-default:"false"`
+	PrometheusPort        int     `yaml:"PrometheusPort" env:"PROMETHEUS-PORT" env-default:"2112"`
 }
 
 // ReadConfig import config struct from yaml file

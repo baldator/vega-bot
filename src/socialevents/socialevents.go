@@ -121,7 +121,7 @@ func LossSocializationNotification(dataClient api.TradingDataServiceClient, loss
 	decimal := float64(market.GetDecimalPlaces())
 	value := float64(lossSocialization.Amount) / (math.Pow(10, decimal))
 
-	message := "💰 Loss socialization on " + market.TradableInstrument.Instrument.Name + ". Amount distributed: " + strconv.FormatFloat(value, 'f', -1, 64)
+	message := "💰 Loss socialization on " + market.TradableInstrument.Instrument.Name + ". Amount distributed: " + strconv.FormatFloat(value, 'f', -1, 64) + ". Party id: " + lossSocialization.PartyId
 	return message, nil
 }
 
