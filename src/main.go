@@ -167,6 +167,7 @@ func main() {
 		}()
 
 		// When the batchSize is too small -> "rpc error: code = Unknown desc = EOF"
+		log.Printf("Listening to event types: %v\n", eventType)
 		observerEvent := api.ObserveEventBusRequest{Type: eventType, BatchSize: conf.VegaEventsBatchSize}
 		events.Send(&observerEvent)
 		events.CloseSend()
