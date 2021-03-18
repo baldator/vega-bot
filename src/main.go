@@ -49,14 +49,27 @@ func main() {
 		defer conn.Close()
 
 		dataClient := api.NewTradingDataServiceClient(conn)
-		eventType := []proto.BusEventType{
-			proto.BusEventType_BUS_EVENT_TYPE_NETWORK_PARAMETER,
-			proto.BusEventType_BUS_EVENT_TYPE_LOSS_SOCIALIZATION,
-			proto.BusEventType_BUS_EVENT_TYPE_AUCTION,
-			proto.BusEventType_BUS_EVENT_TYPE_PROPOSAL,
-			proto.BusEventType_BUS_EVENT_TYPE_TRADE,
-			proto.BusEventType_BUS_EVENT_TYPE_ORDER,
+		eventType := []proto.BusEventType{}
+
+		if conf.VegaNetworkParametersEnabled {
+			eventType = append(eventType, proto.BusEventType_BUS_EVENT_TYPE_NETWORK_PARAMETER)
 		}
+		if conf.VegaLossSocializationEnabled {
+			eventType = append(eventType, proto.BusEventType_BUS_EVENT_TYPE_LOSS_SOCIALIZATION)
+		}
+		if conf.VegaAuctionsEnabled {
+			eventType = append(eventType, proto.BusEventType_BUS_EVENT_TYPE_AUCTION)
+		}
+		if conf.VegaProposalsEnabled {
+			eventType = append(eventType, proto.BusEventType_BUS_EVENT_TYPE_PROPOSAL)
+		}
+		if conf.VegaTradesEnabled {
+			eventType = append(eventType, proto.BusEventType_BUS_EVENT_TYPE_TRADE)
+		}
+		if conf.VegaOrdersEnabled {
+			eventType = append(eventType, proto.BusEventType_BUS_EVENT_TYPE_ORDER)
+		}
+
 		events, err := dataClient.ObserveEventBus(context.Background())
 
 		currentEthereumConfig, err := readEthereumConfig(dataClient)
@@ -154,7 +167,7 @@ func main() {
 		}()
 
 		// When the batchSize is too small -> "rpc error: code = Unknown desc = EOF"
-		observerEvent := api.ObserveEventBusRequest{Type: eventType, BatchSize: 15000}
+		observerEvent := api.ObserveEventBusRequest{Type: eventType, BatchSize: conf.VegaEventsBatchSize}
 		events.Send(&observerEvent)
 		events.CloseSend()
 

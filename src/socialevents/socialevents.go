@@ -120,11 +120,9 @@ func LossSocializationNotification(dataClient api.TradingDataServiceClient, loss
 
 	decimal := float64(market.GetDecimalPlaces())
 	value := float64(lossSocialization.Amount) / (math.Pow(10, decimal))
-	if value < 0 {
-		value = value * -1
-	}
+	value = math.Abs(value)
 
-	message := "💰 Loss socialization on " + market.TradableInstrument.Instrument.Name + ". Amount distributed: " + strconv.FormatFloat(value, 'f', -1, 64) + ". Party id: " + lossSocialization.PartyId
+	message := "💰 Loss socialization on " + market.TradableInstrument.Instrument.Name + ". Amount distributed: " + strconv.FormatFloat(value, 'f', -1, 64)
 	return message, nil
 }
 
@@ -138,7 +136,7 @@ func RektNotification(dataClient api.TradingDataServiceClient, trade *proto.Trad
 	decimal := float64(market.GetDecimalPlaces())
 	value := float64(trade.Price) / (math.Pow(10, decimal))
 
-	message := " 💸 A position on " + market.TradableInstrument.Instrument.Name + "has been liquidated. Position size: " + strconv.FormatUint(trade.Size, 10) + ", position price: " + strconv.FormatFloat(value, 'f', -1, 64)
+	message := " 💸 A position on " + market.TradableInstrument.Instrument.Name + " has been liquidated. Position size: " + strconv.FormatUint(trade.Size, 10) + ", position price: " + strconv.FormatFloat(value, 'f', -1, 64)
 	return message, nil
 }
 

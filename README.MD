@@ -1,4 +1,4 @@
-# 🤖 VEGA BOT 📣
+# 🤖 VEGA EVENTS  BOT 📣
 The bot is publishing real-time Vega network notification to social media platforms.
 
 ## Docker container
@@ -23,14 +23,25 @@ Vega bot use [post to social API service](https://github.com/cdm/post-to-socials
 ## Configuration
 Edit the file `config.yaml` and fill in the required configuration values:
 ```
-SocialServiceURL        => Post to social API URL
-SocialTwitterEnabled    => true if you want to enable Twitter, false otherwise
-SocialTelegramEnabled   => true if you want to enable Telegram, false otherwise
-SocialDiscordEnabled    => true if you want to enable Discord, false otherwise
-SocialSlackEnabled      => true if you want to enable Slack, false otherwise
-SocialServiceKey        => Post to social API Key
-SocialServiceSecret     => Post to social API secret
-GrpcNodeUrl             => URL of the Vega gRPC endpoint
+SocialServiceURL                => Post to social API URL
+SocialTwitterEnabled            => true if you want to enable Twitter, false otherwise
+SocialTelegramEnabled           => true if you want to enable Telegram, false otherwise
+SocialDiscordEnabled            => true if you want to enable Discord, false otherwise
+SocialSlackEnabled              => true if you want to enable Slack, false otherwise
+SocialServiceKey                => Post to social API Key
+SocialServiceSecret             => Post to social API secret
+GrpcNodeUrl                     => URL of the Vega gRPC endpoint
+SentryEnabled                   => true if you want to enable Sentry integration
+SentryDsn:                      => The Sentry endpoint to send crash information to
+PrometheusEnabled               => true if you want to expose Prometheus compatible APM endpoint
+PrometheusPort                  => Prometheus endpoint port (default: 2112)
+VegaEventsBatchSize             => Vega client default batch size (default value: 5000)
+VegaOrdersEnabled               => true if you want the client to listen to orders events (needed if you want to enable Whale alerts)
+VegaTradesEnabled               => true if you want the client to listen to trades events (needed if you want to enable Rekt alerts)
+VegaProposalsEnabled            => true if you want the client to listen to proposals events
+VegaAuctionsEnabled             => true if you want the client to listen to auctions events
+VegaLossSocializationEnabled    => true if you want the client to listen to loss socialization events
+VegaNetworkParametersEnabled    => true if you want the client to listen to network paramentes events
 ```
 
 ## Vega protocol
