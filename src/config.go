@@ -18,12 +18,12 @@ type ConfigVars struct {
 	PrometheusEnabled            bool    `yaml:"PrometheusEnabled" env:"PROMETHEUS-ENABLED" env-default:"false"`
 	PrometheusPort               int     `yaml:"PrometheusPort" env:"PROMETHEUS-PORT" env-default:"2112"`
 	VegaEventsBatchSize          int64   `yaml:"VegaEventsBatchSize" env:"BATCH-SIZE" env-default:"5000"`
-	VegaOrdersEnabled            bool    `yaml:"VegaOrdersEnabled" env:"ORDERS-ENABLE" env-default:"true"`
-	VegaTradesEnabled            bool    `yaml:"VegaTradesEnabled" env:"TRADES-ENABLE" env-default:"true"`
-	VegaProposalsEnabled         bool    `yaml:"VegaProposalsEnabled" env:"PROPOSALS-ENABLE" env-default:"true"`
-	VegaAuctionsEnabled          bool    `yaml:"VegaAuctionsEnabled" env:"AUCTION-ENABLE" env-default:"true"`
-	VegaLossSocializationEnabled bool    `yaml:"VegaLossSocializationEnabled" env:"LOSS-SOCIALIZATION-ENABLE" env-default:"true"`
-	VegaNetworkParametersEnabled bool    `yaml:"VegaNetworkParametersEnabled" env:"NETWORK-PARAMETERS-ENABLE" env-default:"true"`
+	VegaOrdersEnabled            bool    `yaml:"VegaOrdersEnabled" env:"ORDERS-ENABLE" env-default:"false"`
+	VegaTradesEnabled            bool    `yaml:"VegaTradesEnabled" env:"TRADES-ENABLE" env-default:"false"`
+	VegaProposalsEnabled         bool    `yaml:"VegaProposalsEnabled" env:"PROPOSALS-ENABLE" env-default:"false"`
+	VegaAuctionsEnabled          bool    `yaml:"VegaAuctionsEnabled" env:"AUCTION-ENABLE" env-default:"false"`
+	VegaLossSocializationEnabled bool    `yaml:"VegaLossSocializationEnabled" env:"LOSS-SOCIALIZATION-ENABLE" env-default:"false"`
+	VegaNetworkParametersEnabled bool    `yaml:"VegaNetworkParametersEnabled" env:"NETWORK-PARAMETERS-ENABLE" env-default:"false"`
 }
 
 // ReadConfig import config struct from yaml file

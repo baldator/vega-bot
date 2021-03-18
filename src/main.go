@@ -51,22 +51,22 @@ func main() {
 		dataClient := api.NewTradingDataServiceClient(conn)
 		eventType := []proto.BusEventType{}
 
-		if conf.VegaNetworkParametersEnabled {
+		if conf.VegaNetworkParametersEnabled == true {
 			eventType = append(eventType, proto.BusEventType_BUS_EVENT_TYPE_NETWORK_PARAMETER)
 		}
-		if conf.VegaLossSocializationEnabled {
+		if conf.VegaLossSocializationEnabled == true {
 			eventType = append(eventType, proto.BusEventType_BUS_EVENT_TYPE_LOSS_SOCIALIZATION)
 		}
-		if conf.VegaAuctionsEnabled {
+		if conf.VegaAuctionsEnabled == true {
 			eventType = append(eventType, proto.BusEventType_BUS_EVENT_TYPE_AUCTION)
 		}
-		if conf.VegaProposalsEnabled {
+		if conf.VegaProposalsEnabled == true {
 			eventType = append(eventType, proto.BusEventType_BUS_EVENT_TYPE_PROPOSAL)
 		}
-		if conf.VegaTradesEnabled {
+		if conf.VegaTradesEnabled == true {
 			eventType = append(eventType, proto.BusEventType_BUS_EVENT_TYPE_TRADE)
 		}
-		if conf.VegaOrdersEnabled {
+		if conf.VegaOrdersEnabled == true {
 			eventType = append(eventType, proto.BusEventType_BUS_EVENT_TYPE_ORDER)
 		}
 
