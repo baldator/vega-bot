@@ -165,12 +165,12 @@ func main() {
 					case proto.BusEventType_BUS_EVENT_TYPE_ORDER: // Whale alert
 						order := event.GetOrder()
 						if order.Status == proto.Order_STATUS_ACTIVE {
-							if conf.Debug {
-								printEvent(event)
-							}
 							value := order.Size * order.Price
 							marketVal, marketFlag, _ := getMarketValue(dataClient, order.MarketId, order.Side, conf.WhaleOrdersThreshold)
 							if float64(value) > (float64(marketVal)*conf.WhaleThreshold) && marketFlag {
+								if conf.Debug {
+									printEvent(event)
+								}
 								message, err := socialevents.WhaleNotification(dataClient, order)
 								if err != nil {
 									logError(err, conf.SentryEnabled)
