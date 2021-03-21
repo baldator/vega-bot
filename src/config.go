@@ -24,6 +24,7 @@ type ConfigVars struct {
 	VegaAuctionsEnabled          bool    `yaml:"VegaAuctionsEnabled" env:"AUCTION-ENABLE" env-default:"false"`
 	VegaLossSocializationEnabled bool    `yaml:"VegaLossSocializationEnabled" env:"LOSS-SOCIALIZATION-ENABLE" env-default:"false"`
 	VegaNetworkParametersEnabled bool    `yaml:"VegaNetworkParametersEnabled" env:"NETWORK-PARAMETERS-ENABLE" env-default:"false"`
+	Debug                        bool    `yaml:"Debug" env:"DEBUG" env-default:"false"`
 }
 
 // ReadConfig import config struct from yaml file

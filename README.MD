@@ -42,6 +42,7 @@ VegaProposalsEnabled            => true if you want the client to listen to prop
 VegaAuctionsEnabled             => true if you want the client to listen to auctions events
 VegaLossSocializationEnabled    => true if you want the client to listen to loss socialization events
 VegaNetworkParametersEnabled    => true if you want the client to listen to network paramentes events
+Debug                           => true if you want to print debug event information
 ```
 
 ## Vega protocol

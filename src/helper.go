@@ -11,6 +11,7 @@ import (
 	"github.com/vegaprotocol/api-clients/go/generated/code.vegaprotocol.io/vega/proto"
 	"github.com/vegaprotocol/api-clients/go/generated/code.vegaprotocol.io/vega/proto/api"
 	"golang.org/x/net/context"
+	"k8s.io/apimachinery/pkg/util/json"
 )
 
 func readEthereumConfig(dataClient api.TradingDataServiceClient) (*proto.NetworkParameter, error) {
@@ -90,4 +91,10 @@ func logError(err error, sentryEnabled bool) {
 		sentry.Flush(time.Second * 5)
 	}
 	log.Fatal(err)
+}
+
+func printEvent(event *proto.BusEvent) {
+	log.Printf("Event type: %s\n", event.Type)
+	eventJson := json.Marshal(event)
+	log.Printf("Event: %s\n", eventJson)
 }
