@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"io"
 	"log"
 
@@ -36,6 +37,11 @@ func main() {
 
 		log.Println("Starting server")
 		log.Println("Initialize social webservice connection")
+		if conf.Debug {
+			confJson, _ := json.Marshal(conf)
+			log.Printf("Configuration: %s\n", confJson)
+
+		}
 
 		socialPost, err := social.NewSocialChannel(conf.SocialServiceURL, conf.SocialServiceKey, conf.SocialServiceSecret, conf.SocialTwitterEnabled, conf.SocialDiscordEnabled, conf.SocialSlackEnabled, conf.SocialTelegramEnabled)
 		if err != nil {
