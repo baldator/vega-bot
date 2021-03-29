@@ -40,6 +40,7 @@ func readEthereumConfig(dataClient api.TradingDataServiceClient) (*proto.Network
 
 func writeEthereumConfig(ethereumConfig *proto.NetworkParameter) error {
 	if _, err := os.Stat(ethereumConfigDir); os.IsNotExist(err) {
+		log.Println("Creating directory")
 		os.Mkdir(ethereumConfigDir, os.ModePerm)
 	}
 	configContent, err := json.MarshalIndent(ethereumConfig, "", " ")
@@ -58,10 +59,6 @@ func readPreviousEthereumConfig(dataClient api.TradingDataServiceClient) (*proto
 	fileExist, err := exists(fullPath)
 
 	if !fileExist {
-		log.Println("File doesn't exist: create it!")
-		if _, err := os.Stat(ethereumConfigDir); os.IsNotExist(err) {
-			os.Mkdir(ethereumConfigDir, os.ModePerm)
-		}
 		config, err := readEthereumConfig(dataClient)
 		if err != nil {
 			return nil, err
