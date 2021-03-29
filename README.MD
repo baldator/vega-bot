@@ -4,7 +4,7 @@ The bot is publishing real-time Vega network notification to social media platfo
 ## Docker container
 You can run the solution in a Docker container:
 ```
-docker run baldator/vega-bot -v src/config.yaml:config.yaml
+docker run baldator/vega-bot -v src/config.yaml:config.yaml -v src/ethereum.conf:ethereum.conf
 ```
 
 ## Events
