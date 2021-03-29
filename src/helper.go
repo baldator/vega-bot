@@ -2,8 +2,10 @@ package main
 
 import (
 	"encoding/json"
+	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 
@@ -12,6 +14,10 @@ import (
 	"github.com/vegaprotocol/api-clients/go/generated/code.vegaprotocol.io/vega/proto"
 	"github.com/vegaprotocol/api-clients/go/generated/code.vegaprotocol.io/vega/proto/api"
 	"golang.org/x/net/context"
+)
+
+const (
+	ethereumFileConfig = "ethereum.conf"
 )
 
 func readEthereumConfig(dataClient api.TradingDataServiceClient) (*proto.NetworkParameter, error) {
@@ -28,8 +34,59 @@ func readEthereumConfig(dataClient api.TradingDataServiceClient) (*proto.Network
 			currentEthereumConfig = param
 		}
 	}
+	return currentEthereumConfig, nil
+}
+
+func writeEthereumConfig(ethereumConfig *proto.NetworkParameter) error {
+	configContent, err := json.MarshalIndent(ethereumConfig, "", " ")
+	if err != nil {
+		return err
+	}
+	ioutil.WriteFile(ethereumFileConfig, configContent, 0644)
+	return nil
+}
+
+func readPreviousEthereumConfig(dataClient api.TradingDataServiceClient) (*proto.NetworkParameter, error) {
+	log.Println("Check if file " + ethereumFileConfig + " exists")
+	fileExist, err := exists(ethereumFileConfig)
+
+	if !fileExist {
+		log.Println("File doesn't exist: create it!")
+		config, err := readEthereumConfig(dataClient)
+		if err != nil {
+			return nil, err
+		}
+		err = writeEthereumConfig(config)
+		if err != nil {
+			return nil, err
+		}
+
+	}
+
+	log.Println("Reading file " + ethereumFileConfig)
+	var currentEthereumConfig *proto.NetworkParameter
+	config, err := ioutil.ReadFile(ethereumFileConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	err = json.Unmarshal(config, &currentEthereumConfig)
+	if err != nil {
+		return nil, err
+	}
 
 	return currentEthereumConfig, nil
+}
+
+func exists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return false, err
 }
 
 func getMarketValue(dataClient api.TradingDataServiceClient, marketID string, side proto.Side, whaleOrdersThreshold int) (uint64, bool, error) {

@@ -78,9 +78,28 @@ func main() {
 
 		events, err := dataClient.ObserveEventBus(context.Background())
 
+		// check if network ID changed since last run
+		previousEthereumConfig, err := readPreviousEthereumConfig(dataClient)
+		if err != nil {
+			logError(err, conf.SentryEnabled)
+		}
+
 		currentEthereumConfig, err := readEthereumConfig(dataClient)
 		if err != nil {
 			logError(err, conf.SentryEnabled)
+		}
+
+		message := socialevents.NetworkParametesNotification(dataClient, currentEthereumConfig, previousEthereumConfig)
+		if message != "" {
+			socialPost.SendMessage(message)
+
+			// reinitialize network parameters
+			err = writeEthereumConfig(currentEthereumConfig)
+			if err != nil {
+				logError(err, conf.SentryEnabled)
+			}
+		} else {
+			log.Println("Network ID didn't change since last run")
 		}
 
 		done := make(chan bool)
@@ -110,7 +129,7 @@ func main() {
 								socialPost.SendMessage(message)
 
 								// reinitialize network parameters
-								currentEthereumConfig, err = readEthereumConfig(dataClient)
+								err = writeEthereumConfig(networkParameter)
 								if err != nil {
 									logError(err, conf.SentryEnabled)
 								}
