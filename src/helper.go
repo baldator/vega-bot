@@ -17,7 +17,8 @@ import (
 )
 
 const (
-	ethereumFileConfig = "ethereum.conf"
+	ethereumConfigDir  = "data"
+	ethereumConfigFile = "ethereum.conf"
 )
 
 func readEthereumConfig(dataClient api.TradingDataServiceClient) (*proto.NetworkParameter, error) {
@@ -38,20 +39,29 @@ func readEthereumConfig(dataClient api.TradingDataServiceClient) (*proto.Network
 }
 
 func writeEthereumConfig(ethereumConfig *proto.NetworkParameter) error {
+	if _, err := os.Stat(ethereumConfigDir); os.IsNotExist(err) {
+		os.Mkdir(ethereumConfigDir, os.ModePerm)
+	}
 	configContent, err := json.MarshalIndent(ethereumConfig, "", " ")
 	if err != nil {
 		return err
 	}
-	ioutil.WriteFile(ethereumFileConfig, configContent, 0644)
+
+	fullPath := ethereumConfigDir + "/" + ethereumConfigFile
+	ioutil.WriteFile(fullPath, configContent, 0644)
 	return nil
 }
 
 func readPreviousEthereumConfig(dataClient api.TradingDataServiceClient) (*proto.NetworkParameter, error) {
-	log.Println("Check if file " + ethereumFileConfig + " exists")
-	fileExist, err := exists(ethereumFileConfig)
+	fullPath := ethereumConfigDir + "/" + ethereumConfigFile
+	log.Println("Check if file " + fullPath + " exists")
+	fileExist, err := exists(fullPath)
 
 	if !fileExist {
 		log.Println("File doesn't exist: create it!")
+		if _, err := os.Stat(ethereumConfigDir); os.IsNotExist(err) {
+			os.Mkdir(ethereumConfigDir, os.ModePerm)
+		}
 		config, err := readEthereumConfig(dataClient)
 		if err != nil {
 			return nil, err
@@ -63,9 +73,9 @@ func readPreviousEthereumConfig(dataClient api.TradingDataServiceClient) (*proto
 
 	}
 
-	log.Println("Reading file " + ethereumFileConfig)
+	log.Println("Reading file " + fullPath)
 	var currentEthereumConfig *proto.NetworkParameter
-	config, err := ioutil.ReadFile(ethereumFileConfig)
+	config, err := ioutil.ReadFile(fullPath)
 	if err != nil {
 		return nil, err
 	}
