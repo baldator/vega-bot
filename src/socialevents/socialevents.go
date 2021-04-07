@@ -17,6 +17,10 @@ type EthereumConfig struct {
 	Confirmations int    `json:"confirmations"`
 }
 
+func NetworkResetNotification(uptime string) string {
+	return "🔄 Vega network restarted at: " + uptime
+}
+
 // MarketProposalNotification returns market proposal notification message
 func MarketProposalNotification(dataClient api.TradingDataServiceClient, marketID string, state proto.Proposal_State) (string, error) {
 	requestMarket := api.MarketByIDRequest{MarketId: marketID}
@@ -100,7 +104,7 @@ func NetworkParametesNotification(dataClient api.TradingDataServiceClient, netwo
 	json.Unmarshal([]byte(network.Value), &newConfig)
 
 	if currentConfig.NetworkID != newConfig.NetworkID {
-		message = "🔄 Vega network restarted. New network id is: " + newConfig.NetworkID
+		message = "🔄 Ethereum network parameter changed. New network id is: " + newConfig.NetworkID
 	}
 
 	return message

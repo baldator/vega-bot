@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"log"
+	"time"
 
 	"github.com/baldator/vega-alerts/social"
 	"github.com/baldator/vega-alerts/socialevents"
@@ -58,7 +59,29 @@ func main() {
 		eventType := []proto.BusEventType{}
 
 		if conf.VegaNetworkParametersEnabled == true {
-			eventType = append(eventType, proto.BusEventType_BUS_EVENT_TYPE_NETWORK_PARAMETER)
+			go func() {
+				for {
+					flagReset, uptime, err := vegaNetworkReset(dataClient)
+					if err != nil {
+						logError(err, conf.SentryEnabled)
+					}
+					if flagReset {
+						message := socialevents.NetworkResetNotification(uptime)
+						if message != "" {
+							socialPost.SendMessage(message)
+
+							// reinitialize network parameters
+							err = writeUptimeConfig(uptime)
+							if err != nil {
+								logError(err, conf.SentryEnabled)
+							}
+						} else {
+							log.Println("Network start time didn't change since last run")
+						}
+					}
+					time.Sleep(60 * time.Second)
+				}
+			}()
 		}
 		if conf.VegaLossSocializationEnabled == true {
 			eventType = append(eventType, proto.BusEventType_BUS_EVENT_TYPE_LOSS_SOCIALIZATION)

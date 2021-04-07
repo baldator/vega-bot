@@ -19,7 +19,31 @@ import (
 const (
 	ethereumConfigDir  = "data"
 	ethereumConfigFile = "ethereum.conf"
+	uptimeConfigFile   = "uptime.conf"
 )
+
+func vegaNetworkReset(dataClient api.TradingDataServiceClient) (bool, string, error) {
+	currentUptime, err := readVegaUptime(dataClient)
+	if err != nil {
+		return false, "", err
+	}
+
+	previousUptime, err := readPreviousUptimeConfig(dataClient)
+	if err != nil {
+		return false, "", err
+	}
+
+	if previousUptime != currentUptime {
+		err = writeUptimeConfig(currentUptime)
+		if err != nil {
+			return false, "", err
+		}
+
+		return true, currentUptime, nil
+	}
+
+	return false, "", nil
+}
 
 func readEthereumConfig(dataClient api.TradingDataServiceClient) (*proto.NetworkParameter, error) {
 	log.Println("Initialize network parameters")
@@ -36,6 +60,56 @@ func readEthereumConfig(dataClient api.TradingDataServiceClient) (*proto.Network
 		}
 	}
 	return currentEthereumConfig, nil
+}
+
+func readVegaUptime(dataClient api.TradingDataServiceClient) (string, error) {
+	log.Println("Reading vega  network statistics")
+	statsReuqest := api.StatisticsRequest{}
+	stats, err := dataClient.Statistics(context.Background(), &statsReuqest)
+	if err != nil {
+		return "", err
+	}
+
+	uptime := stats.Statistics.Uptime
+
+	return uptime, nil
+}
+
+func readPreviousUptimeConfig(dataClient api.TradingDataServiceClient) (string, error) {
+	fullPath := ethereumConfigDir + "/" + uptimeConfigFile
+	log.Println("Check if file " + fullPath + " exists")
+	fileExist, err := exists(fullPath)
+
+	if !fileExist {
+		uptime, err := readVegaUptime(dataClient)
+		if err != nil {
+			return "", err
+		}
+		err = writeUptimeConfig(uptime)
+		if err != nil {
+			return "", err
+		}
+
+	}
+
+	log.Println("Reading file " + fullPath)
+	config, err := ioutil.ReadFile(fullPath)
+	if err != nil {
+		return "", err
+	}
+
+	return string(config), nil
+}
+
+func writeUptimeConfig(uptime string) error {
+	if _, err := os.Stat(ethereumConfigDir); os.IsNotExist(err) {
+		log.Println("Creating directory")
+		os.Mkdir(ethereumConfigDir, os.ModePerm)
+	}
+
+	fullPath := ethereumConfigDir + "/" + uptimeConfigFile
+	ioutil.WriteFile(fullPath, []byte(uptime), 0644)
+	return nil
 }
 
 func writeEthereumConfig(ethereumConfig *proto.NetworkParameter) error {
