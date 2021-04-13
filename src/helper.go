@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
 	"io/ioutil"
 	"log"
@@ -20,7 +21,10 @@ const (
 	ethereumConfigDir  = "data"
 	ethereumConfigFile = "ethereum.conf"
 	uptimeConfigFile   = "uptime.conf"
+	botBlacklistFile   = "bots.conf"
 )
+
+var botBlacklist []string
 
 func vegaNetworkReset(dataClient api.TradingDataServiceClient) (bool, string, error) {
 	currentUptime, err := readVegaUptime(dataClient)
@@ -235,4 +239,29 @@ func printEvent(event *proto.BusEvent) {
 	log.Printf("Event type: %s\n", event.Type)
 	eventJson, _ := json.Marshal(event)
 	log.Printf("Event: %s\n", eventJson)
+}
+
+func initializeBots() error {
+	path := ethereumConfigDir + "/" + botBlacklistFile
+	file, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		botBlacklist = append(botBlacklist, scanner.Text())
+	}
+	return scanner.Err()
+
+}
+
+func isBot(partyID string) bool {
+	for _, n := range botBlacklist {
+		if partyID == n {
+			return true
+		}
+	}
+	return false
 }

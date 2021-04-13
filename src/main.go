@@ -31,6 +31,10 @@ func main() {
 		initializePrometheus(conf.PrometheusPort)
 	}
 
+	if conf.BotBlacklistEnabled {
+		initializeBots()
+	}
+
 	func() {
 		if conf.SentryEnabled {
 			defer sentry.Recover()
@@ -212,6 +216,10 @@ func main() {
 							if float64(value) > (float64(marketVal)*conf.WhaleThreshold) && marketFlag {
 								if conf.Debug {
 									printEvent(event)
+								}
+
+								if conf.BotBlacklistEnabled && isBot(order.PartyId) {
+									break
 								}
 								message, err := socialevents.WhaleNotification(dataClient, order)
 								if err != nil {
