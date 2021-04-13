@@ -219,10 +219,10 @@ func main() {
 								}
 
 								if conf.BotBlacklistEnabled && isBot(order.PartyId) {
-									log.Printf("Party id %s in blacklist. Ignoring...", order.PartyId)
+									log.Printf("Party id %s is in the blacklist. Ignoring...", order.PartyId)
 									break
 								} else {
-									log.Printf("Party id %s in is blacklist. Continuing...", order.PartyId)
+									log.Printf("Party id %s is not in the blacklist. Continuing...", order.PartyId)
 
 								}
 								message, err := socialevents.WhaleNotification(dataClient, order)

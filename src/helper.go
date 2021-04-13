@@ -242,6 +242,7 @@ func printEvent(event *proto.BusEvent) {
 }
 
 func initializeBots() error {
+	log.Println("Initialize bot blacklist")
 	path := ethereumConfigDir + "/" + botBlacklistFile
 	file, err := os.Open(path)
 	if err != nil {
@@ -252,6 +253,10 @@ func initializeBots() error {
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		botBlacklist = append(botBlacklist, scanner.Text())
+	}
+	log.Println("Bot blacklist:")
+	for _, n := range botBlacklist {
+		log.Println(n)
 	}
 	return scanner.Err()
 
