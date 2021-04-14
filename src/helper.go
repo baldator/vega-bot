@@ -264,6 +264,7 @@ func initializeBots() error {
 
 func isBot(partyID string) bool {
 	for _, n := range botBlacklist {
+		log.Printf("%s - %s\n", partyID, n)
 		if partyID == n {
 			return true
 		}
