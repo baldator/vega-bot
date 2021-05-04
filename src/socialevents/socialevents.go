@@ -4,12 +4,14 @@ import (
 	"encoding/json"
 	"math"
 	"strconv"
+	"strings"
 
 	"github.com/vegaprotocol/api-clients/go/generated/code.vegaprotocol.io/vega/proto"
 	"github.com/vegaprotocol/api-clients/go/generated/code.vegaprotocol.io/vega/proto/api"
 	"golang.org/x/net/context"
 )
 
+var activeAuctions := []string{}
 type EthereumConfig struct {
 	NetworkID     string `json:"network_id"`
 	ChainID       string `json:"chain_id"`
@@ -65,13 +67,33 @@ func AuctionNotification(dataClient api.TradingDataServiceClient, auction *proto
 		return "", err
 	}
 
+	if auction.Start && strings.Contains(activeAuctions, auction.MarketId){
+		return "", nil
+	}
+
 	status := "started"
+	if auction.Start {
+		for i, v := range activeAuctions {
+			if v == auction.MarketId {
+				status := "extended"
+				break
+			}
+		}	
+		activeAuctions = append(activeAuctions, auction.MarketId)
+	}
+
 	if auction.Leave {
 		status = "ended"
+		for i, v := range activeAuctions {
+			if v == auction.MarketId {
+				activeAuctions = append(activeAuctions[:i], activeAuctions[i+1:]...)
+				break
+			}
+		}
 	}
 
 	auctionType := getAuctionType(auction.Trigger)
-	message := "🔨 " + auctionType + " on " + market.TradableInstrument.Instrument.Name + " has been " + status
+	message := "🔨 " + auctionType + " on " + market.TradableInstrument.Instrument.Name + " has " + status
 
 	return message, nil
 }
