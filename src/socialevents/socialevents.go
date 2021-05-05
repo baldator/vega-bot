@@ -11,7 +11,7 @@ import (
 	"golang.org/x/net/context"
 )
 
-var activeAuctions := []string{}
+var activeAuctions []string{}
 type EthereumConfig struct {
 	NetworkID     string `json:"network_id"`
 	ChainID       string `json:"chain_id"`
