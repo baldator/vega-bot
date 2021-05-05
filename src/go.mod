@@ -1,4 +1,4 @@
-module github.com/baldator/vega-alerts
+module github.com/baldator/vega-bot
 
 go 1.15
 
