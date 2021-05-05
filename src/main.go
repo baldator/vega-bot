@@ -6,8 +6,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/baldator/vega-alerts/social"
-	"github.com/baldator/vega-alerts/socialevents"
+	"github.com/baldator/vega-bot/social"
+	"github.com/baldator/vega-bot/socialevents"
 
 	"github.com/getsentry/sentry-go"
 	"github.com/vegaprotocol/api-clients/go/generated/code.vegaprotocol.io/vega/proto"
