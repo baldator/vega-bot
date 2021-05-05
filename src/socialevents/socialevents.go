@@ -69,7 +69,7 @@ func AuctionNotification(dataClient api.TradingDataServiceClient, auction *proto
 
 	status := "started"
 	if auction.OpeningAuction {
-		for i, v := range activeAuctions {
+		for _, v := range activeAuctions {
 			if v == auction.MarketId {
 				status = "extended"
 				break
