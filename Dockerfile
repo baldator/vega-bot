@@ -8,7 +8,7 @@ COPY src/ .
 RUN ls
 RUN go mod download
 RUN go mod verify
-RUN go build -o vegabot github.com/baldator/vega-alerts
+RUN go build -o vegabot github.com/baldator/vega-bot
 
 FROM alpine:3.12.4
 ENV APP_USER app
