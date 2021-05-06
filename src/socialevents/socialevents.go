@@ -10,8 +10,6 @@ import (
 	"golang.org/x/net/context"
 )
 
-var activeAuctions []string
-
 type EthereumConfig struct {
 	NetworkID     string `json:"network_id"`
 	ChainID       string `json:"chain_id"`
@@ -68,24 +66,12 @@ func AuctionNotification(dataClient api.TradingDataServiceClient, auction *proto
 	}
 
 	status := "started"
-	if auction.OpeningAuction {
-		for _, v := range activeAuctions {
-			if v == auction.MarketId {
-				status = "extended"
-				break
-			}
-		}
-		activeAuctions = append(activeAuctions, auction.MarketId)
+	if !auction.OpeningAuction && !auction.Leave {
+		status = "extended"
 	}
 
 	if auction.Leave {
 		status = "ended"
-		for i, v := range activeAuctions {
-			if v == auction.MarketId {
-				activeAuctions = append(activeAuctions[:i], activeAuctions[i+1:]...)
-				break
-			}
-		}
 	}
 
 	auctionType := getAuctionType(auction.Trigger)
