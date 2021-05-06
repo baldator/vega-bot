@@ -67,7 +67,6 @@ func readEthereumConfig(dataClient api.TradingDataServiceClient) (*proto.Network
 }
 
 func readVegaUptime(dataClient api.TradingDataServiceClient) (string, error) {
-	log.Println("Reading vega  network statistics")
 	statsReuqest := api.StatisticsRequest{}
 	stats, err := dataClient.Statistics(context.Background(), &statsReuqest)
 	if err != nil {
@@ -81,7 +80,6 @@ func readVegaUptime(dataClient api.TradingDataServiceClient) (string, error) {
 
 func readPreviousUptimeConfig(dataClient api.TradingDataServiceClient) (string, error) {
 	fullPath := ethereumConfigDir + "/" + uptimeConfigFile
-	log.Println("Check if file " + fullPath + " exists")
 	fileExist, err := exists(fullPath)
 
 	if !fileExist {
@@ -96,7 +94,6 @@ func readPreviousUptimeConfig(dataClient api.TradingDataServiceClient) (string, 
 
 	}
 
-	log.Println("Reading file " + fullPath)
 	config, err := ioutil.ReadFile(fullPath)
 	if err != nil {
 		return "", err

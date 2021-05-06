@@ -22,6 +22,7 @@ type ConfigVars struct {
 	VegaTradesEnabled            bool    `yaml:"VegaTradesEnabled" env:"TRADES-ENABLE" env-default:"false"`
 	VegaProposalsEnabled         bool    `yaml:"VegaProposalsEnabled" env:"PROPOSALS-ENABLE" env-default:"false"`
 	VegaAuctionsEnabled          bool    `yaml:"VegaAuctionsEnabled" env:"AUCTION-ENABLE" env-default:"false"`
+	VegaAuctionsExtendEnabled    bool    `yaml:"VegaAuctionsExtendEnabled" env:"AUCTION-EXTEND-ENABLE" env-default:"false"`
 	VegaLossSocializationEnabled bool    `yaml:"VegaLossSocializationEnabled" env:"LOSS-SOCIALIZATION-ENABLE" env-default:"false"`
 	VegaNetworkParametersEnabled bool    `yaml:"VegaNetworkParametersEnabled" env:"NETWORK-PARAMETERS-ENABLE" env-default:"false"`
 	BotBlacklistEnabled          bool    `yaml:"BotBlacklistEnabled" env:"BOT-BLACKLIST-ENABLE" env-default:"false"`

@@ -59,7 +59,7 @@ func getMarketProposalState(state proto.Proposal_State) string {
 }
 
 // AuctionNotification returns auction notification message
-func AuctionNotification(dataClient api.TradingDataServiceClient, auction *proto.AuctionEvent) (string, error) {
+func AuctionNotification(dataClient api.TradingDataServiceClient, auction *proto.AuctionEvent, sendExtend bool) (string, error) {
 	market, err := getMarketByID(dataClient, auction.MarketId)
 	if err != nil {
 		return "", err
@@ -67,6 +67,9 @@ func AuctionNotification(dataClient api.TradingDataServiceClient, auction *proto
 
 	status := "started"
 	if !auction.OpeningAuction && !auction.Leave {
+		if !sendExtend {
+			return "", nil
+		}
 		status = "extended"
 	}
 

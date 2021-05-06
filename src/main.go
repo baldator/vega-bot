@@ -178,7 +178,7 @@ func main() {
 							printEvent(event)
 						}
 						auction := event.GetAuction()
-						message, err := socialevents.AuctionNotification(dataClient, auction)
+						message, err := socialevents.AuctionNotification(dataClient, auction, conf.VegaAuctionsExtendEnabled)
 						log.Println(message)
 						if err != nil {
 							logError(err, conf.SentryEnabled)
