@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"math"
 	"strconv"
+	"time"
 
 	"github.com/vegaprotocol/api-clients/go/generated/code.vegaprotocol.io/vega/proto"
 	"github.com/vegaprotocol/api-clients/go/generated/code.vegaprotocol.io/vega/proto/api"
@@ -19,8 +20,13 @@ type EthereumConfig struct {
 	Confirmations int    `json:"confirmations"`
 }
 
-func NetworkResetNotification(uptime string) string {
-	return "🔄 Vega network restarted at: " + uptime
+func NetworkResetNotification(uptime string) (string, error) {
+
+	t, err := time.Parse(time.RFC3339Nano, uptime)
+	if err != nil {
+		return "", err
+	}
+	return "🔄 Vega network restarted at: " + t.Format(time.RFC822), nil
 }
 
 // MarketProposalNotification returns market proposal notification message
@@ -71,7 +77,7 @@ func AuctionNotification(dataClient api.TradingDataServiceClient, auction *proto
 	if !auction.Leave {
 		for _, v := range activeAuctions {
 			if v == auction.MarketId {
-				if excludeExtend {
+				if !excludeExtend {
 					return "", nil
 				}
 				status = "extended"

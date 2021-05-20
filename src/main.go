@@ -70,7 +70,10 @@ func main() {
 						logError(err, conf.SentryEnabled)
 					}
 					if flagReset {
-						message := socialevents.NetworkResetNotification(uptime)
+						message, err := socialevents.NetworkResetNotification(uptime)
+						if err != nil {
+							logError(err, conf.SentryEnabled)
+						}
 						if message != "" {
 							socialPost.SendMessage(message)
 
